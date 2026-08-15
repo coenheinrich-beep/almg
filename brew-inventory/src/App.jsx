@@ -223,6 +223,7 @@ export default function App() {
   const [status, setStatus] = useState("");
   const [confirmReset, setConfirmReset] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [confirmDeleteIdx, setConfirmDeleteIdx] = useState(null);
 
   const past = useRef([]);
   const future = useRef([]);
@@ -321,6 +322,19 @@ export default function App() {
     ]);
     setNewItemName("");
     flash(`Added ${newItemName.trim()}`);
+  };
+
+  const deleteHistoryEntry = (index) => {
+    if (confirmDeleteIdx !== index) {
+      setConfirmDeleteIdx(index);
+      setTimeout(() => setConfirmDeleteIdx((cur) => (cur === index ? null : cur)), 3000);
+      return;
+    }
+    const next = history.filter((_, i) => i !== index);
+    setHistory(next);
+    saveLocal("brew-history-v2", next);
+    setConfirmDeleteIdx(null);
+    flash("Removed that saved count");
   };
 
   const saveWeek = () => {
@@ -674,9 +688,24 @@ export default function App() {
               );
               return (
                 <div key={i} className="rounded-xl p-3" style={{ background: "#fff", border: `1.5px solid ${C.sky}` }}>
-                  <p className="font-black text-sm mb-1" style={{ color: C.navy }}>
-                    Week of {snap.label}
-                  </p>
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="font-black text-sm" style={{ color: C.navy }}>
+                      Week of {snap.label}
+                    </p>
+                    <button
+                      onClick={() => deleteHistoryEntry(i)}
+                      className="shrink-0 h-6 px-2 rounded-full flex items-center gap-1 text-[10px] font-black transition"
+                      style={
+                        confirmDeleteIdx === i
+                          ? { background: C.orange, color: "#fff" }
+                          : { background: "transparent", color: C.navy, opacity: 0.3 }
+                      }
+                      title={confirmDeleteIdx === i ? "Tap again to confirm" : "Delete this saved count"}
+                    >
+                      <Trash2 size={11} />
+                      {confirmDeleteIdx === i && "Confirm"}
+                    </button>
+                  </div>
                   <p className="text-xs opacity-60 leading-relaxed">
                     {snap.items
                       .filter((it) => Object.values(it.counts).reduce((a, b) => a + b, 0) > 0)
@@ -704,6 +733,10 @@ export default function App() {
             })}
           </div>
         )}
+
+        <p className="text-center text-[10px] tracking-wide opacity-25 mt-2 mb-1">
+          By: Coen Heinrich
+        </p>
       </div>
 
       {/* Save bar */}
