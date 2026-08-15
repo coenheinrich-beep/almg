@@ -138,15 +138,15 @@ const CATEGORIES = [
   "Other",
 ];
 
-/* 7 Brew palette */
+/* Seven Brew palette — matched to store signage */
 const C = {
-  navy: "#0A2540",
-  blue: "#1D6FE0",
-  sky: "#DCEBFB",
-  orange: "#F26430",
-  cream: "#FFF8EC",
-  butter: "#FFD25A",
-  ink: "#12233A",
+  navy: "#0C1B33",   // near-black dark, matches the building/awning
+  blue: "#0A5CC8",   // electric blue neon on the canopy
+  sky: "#D4E6F9",    // light blue tint
+  orange: "#C41230", // Seven Brew red from the 7B logo
+  cream: "#F2F7FD",  // cool off-white background
+  butter: "#FFFFFF", // white for header accents
+  ink: "#0C1B33",
 };
 
 function weekLabel(d = new Date()) {
@@ -437,7 +437,7 @@ export default function App() {
             <div className="h-2.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.15)" }}>
               <div
                 className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${C.butter}, ${C.orange})` }}
+                style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${C.blue}, ${C.orange})` }}
               />
             </div>
           </div>
