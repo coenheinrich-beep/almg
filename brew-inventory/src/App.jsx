@@ -195,7 +195,7 @@ function buildOrderText(lowItems) {
     byCategory[it.category].push(it);
   }
 
-  const lines = [`7 BREW ORDER LIST — Week of ${weekLabel()}`, ""];
+  const lines = [`7brew ORDER LIST — Week of ${weekLabel()}`, ""];
   for (const [cat, catItems] of Object.entries(byCategory)) {
     lines.push(cat.toUpperCase());
     for (const it of catItems) {
@@ -272,9 +272,15 @@ export default function App() {
       setTimeout(() => setConfirmReset(false), 3000);
       return;
     }
-    commit(DEFAULT_ITEMS);
+    commit(
+      items.map((it) => {
+        const zeroed = {};
+        Object.keys(it.counts).forEach((k) => (zeroed[k] = 0));
+        return { ...it, counts: zeroed, counted: false };
+      })
+    );
     setConfirmReset(false);
-    flash("Reset to the starting list");
+    flash("All counts cleared to zero");
   };
 
   const flash = (msg) => {
@@ -390,7 +396,7 @@ export default function App() {
                 className="inline-block px-2 py-0.5 rounded-full text-[10px] font-black tracking-[0.2em] mb-1.5"
                 style={{ background: C.orange, color: "#fff" }}
               >
-                7 BREW
+                7brew
               </div>
               <h1 className="text-2xl font-black tracking-tight text-white leading-none">Weekly Count</h1>
               <p className="text-sm mt-1" style={{ color: C.sky }}>
