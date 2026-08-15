@@ -1,9 +1,21 @@
-# 7 Brew Weekly Count
+# 7brew Weekly Count
 
-A React + Vite app for tracking weekly store inventory. Same tool as the Claude
-artifact version, but now a standalone project you can run locally, edit in
-Claude Code or any editor, and deploy anywhere static sites are hosted
-(Netlify, Vercel, GitHub Pages, etc).
+A React + Vite app for tracking weekly store inventory: count every item,
+flag what's low, and copy a ready-to-send order list.
+
+## Deploying to Vercel
+
+This app lives in a subfolder of the `almg` repo, alongside the landscaping
+site at the repo root. To deploy it as its own site:
+
+1. In Vercel, **Add New → Project** and import the `almg` repo.
+2. Set **Root Directory** to `brew-inventory`. This is the important step —
+   without it Vercel builds the repo root and gets the landscaping site.
+3. Leave the rest alone. Vercel detects Vite and uses `npm run build` → `dist/`.
+4. Deploy.
+
+Every later push to `main` redeploys automatically. Adding this subfolder does
+not affect the existing landscaping deployment, which builds from the repo root.
 
 ## Run it locally
 
@@ -12,31 +24,43 @@ npm install
 npm run dev
 ```
 
-Then open the local URL it prints (usually `http://localhost:5173`).
+Then open the URL it prints (usually `http://localhost:5173`).
 
-## Build for deployment
+## Build
 
 ```bash
 npm run build
 ```
 
-Output goes to `dist/` — drag that folder into Netlify Drop, or point any
-static host at it.
+Output goes to `dist/` — deployable on any static host.
 
 ## Data storage
 
-This version uses the browser's `localStorage`, so counts persist per-browser
-on whatever device you're using it from. There's no shared/cloud sync between
-devices — if you want that (e.g. a phone counting cans while a laptop counts
-syrups, updating the same list), the next step would be wiring this up to a
-small backend (Supabase is a easy fit if you want to reuse what you've already
-got set up for Bellwether).
+Counts are saved in the browser's `localStorage`, so **each device keeps its
+own separate counts**. Sharing the URL with someone gives them their own copy
+of the sheet, not a view of yours — two people counting at once will not see
+each other's numbers.
+
+If you later want one shared live count across devices, that needs a backend.
+Supabase's free tier is the usual fit: a single `items` table plus its realtime
+subscription would replace the `loadLocal` / `saveLocal` calls in `src/App.jsx`.
+
+## Features
+
+- **Count sheet** — per-item counters with unit sets (Boxes/Sleeves,
+  Cases/Cans, etc), category grouping, and a counted/left/low filter.
+- **Order list** — the cart button collects every item at or below its low
+  threshold, grouped by category, marked `OUT` or `LOW`, with a
+  copy-to-clipboard export formatted for a text or email.
+- **History** — save a week's count to keep a snapshot; each saved week can be
+  deleted with a tap-to-confirm trash button.
+- **Undo/redo** and a **reset** that zeroes every count without dropping items.
 
 ## Project structure
 
 ```
 src/
-  App.jsx       — all app logic + UI (item list, categories, counters, undo/redo, history)
+  App.jsx       — all app logic + UI
   main.jsx      — React entry point
   index.css     — Tailwind imports
 index.html      — HTML shell
@@ -46,7 +70,10 @@ vite.config.js
 
 ## Editing the item list
 
-The starting inventory (items, categories, unit types like Boxes/Sleeves or
-Cases/Cans) lives in the `DEFAULT_ITEMS` array near the top of `src/App.jsx`.
-Add, remove, or re-categorize items there — it also doubles as what "Reset"
-reverts to.
+The starting inventory (items, categories, unit types) lives in the
+`DEFAULT_ITEMS` array near the top of `src/App.jsx`. Add, remove, or
+re-categorize items there.
+
+Note that `DEFAULT_ITEMS` is only the *starting* list — once the app has run
+once, the live list is whatever is in `localStorage`. Editing `DEFAULT_ITEMS`
+won't change a sheet that's already in use.
